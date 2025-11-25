@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* External fonts and icons */
+@import url('https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.5.0/remixicon.min.css');
+/* Fonts from next/font variables */
+:root {
+  --font-pacifico: 'Pacifico', cursive;
+  --font-poppins: 'Poppins', sans-serif;
+  --font-geist-sans: 'Geist Sans', sans-serif;
+  --font-geist-mono: 'Geist Mono', monospace;
+}
+
+/* Base styles */
+html, body {
+  @apply bg-gradient-to-br from-orange-50 via-yellow-50 to-white text-gray-800;
+  font-family: var(--font-geist-sans);
+}
+
+/* Font utility classes */
+.font-pacifico {
+  font-family: var(--font-pacifico) !important;
+}
+
+.font-poppins {
+  font-family: var(--font-poppins) !important;
+}
+
+.font-geist {
+  font-family: var(--font-geist-sans) !important;
+}
+
+.font-mono {
+  font-family: var(--font-geist-mono) !important;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  @apply font-poppins font-extrabold tracking-tight;
+  background: linear-gradient(to right, #f97316, #ea580c, #facc15); /* sunrise orange → amber */
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Links */
+a {
+  @apply text-orange-600 hover:text-amber-600 transition-colors;
+}
+
+/* Buttons */
+.btn-primary {
+  @apply bg-gradient-to-r from-orange-500 to-amber-500 text-white font-poppins font-semibold px-6 py-3 rounded-full shadow hover:scale-105 transition-transform;
+}
+
+.btn-secondary {
+  @apply border-2 border-orange-500 text-orange-600 font-semibold px-6 py-3 rounded-full hover:bg-orange-50 transition;
+}
