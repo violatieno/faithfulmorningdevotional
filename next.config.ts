@@ -1,12 +1,14 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: "export",
+  // 💡 REMOVE: output: "export",
+  
   images: {
     unoptimized: true,
   },
   typescript: {
-    // ignoreBuildErrors: true,
+    // You can keep this commented out unless you specifically need it
+    // ignoreBuildErrors: true, 
   },
 };
 
