@@ -1,6 +1,5 @@
 'use client'; // This is good, explicitly stating client-side rendering
-require('dotenv').config();
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+// Client component — avoid server-side requires like `dotenv` or `stripe` here
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Link from 'next/link';

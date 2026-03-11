@@ -42,42 +42,41 @@ async function payWithStripe(items: Product[]) {
   }
 }
 
-async function payWithMpesa(phone: string, amount: number, orderRef: string) {
+async function payWithPayHero(phone: string, amount: number, orderRef: string) {
+  // 1. Basic Validation
   if (!phone || !/^\d{9,15}$/.test(phone.replace(/\D/g, ''))) {
-    throw new Error('Invalid phone number');
-  }
-  if (!amount || amount <= 0) {
-    throw new Error('Invalid amount');
+    throw new Error('Please enter a valid M-Pesa phone number');
   }
 
   try {
-    const res = await fetch('/api/mpesa/stkpush', {
+    const res = await fetch('/api/payhero', { // Path to your new API route
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         phone,
         amount,
-        accountReference: orderRef,
-        description: 'Faithful Morning order',
+        reference: orderRef,
       }),
     });
 
+    // 2. Handle HTTP Errors (like 404 or 500)
     if (!res.ok) {
-      const text = await res.text();
-      throw new Error(`M-PESA request failed: ${text}`);
+      const errorData = await res.json().catch(() => ({}));
+      throw new Error(errorData.error || `Request failed with status ${res.status}`);
     }
 
     const json = await res.json();
-    console.log('MPESA response', json);
+    console.log('PayHero response:', json);
 
-    // Adapt to your API response shape — use codes/messages your backend returns
-    if (json?.ResponseCode === '0' || json?.ResponseCode === 0 || json?.RelatedTransactionSuccess) {
+    // 3. PayHero Success Check
+    // If the request was accepted, PayHero returns success: true
+    if (json.success) {
       return json;
     } else {
-      throw new Error(json?.error || json?.message || 'M-PESA request failed');
+      throw new Error(json.error || 'Failed to initiate STK push');
     }
-  } catch (err) {
-    console.error('payWithMpesa error', err);
+  } catch (err: any) {
+    console.error('payWithPayHero error:', err);
     throw err;
   }
 }
@@ -149,28 +148,34 @@ export default function StorePage() {
     }
   }, [cart]);
 
-  const handleMpesa = useCallback(async () => {
-    if (cart.length === 0) {
-      toast.error('Your cart is empty');
-      return;
-    }
-    // Basic phone normalization: remove non-digit, allow country code
-    const normalized = phone.replace(/\D/g, '');
-    if (!/^\d{9,15}$/.test(normalized)) {
-      toast.error('Enter a valid phone number (e.g. 2547...)');
-      return;
-    }
+ const handleMpesa = useCallback(async () => {
+  if (cart.length === 0) {
+    toast.error('Your cart is empty');
+    return;
+  }
 
-    setIsProcessing(true);
-    try {
-      await payWithMpesa(normalized, Number(total), 'FM-ORDER-' + Date.now());
-      toast.success('M-PESA prompt should appear on your phone');
-    } catch (err: any) {
-      toast.error(err?.message || 'M-PESA payment failed');
-    } finally {
-      setIsProcessing(false);
-    }
-  }, [phone, cart, total]);
+  // 1. Clean the phone number (remove spaces, plus signs, etc.)
+  const normalized = phone.replace(/\D/g, '');
+  if (!/^\d{9,15}$/.test(normalized)) {
+    toast.error('Enter a valid phone number (e.g. 07... or 254...)');
+    return;
+  }
+
+  setIsProcessing(true);
+  try {
+    // 2. CONVERSION: Convert USD Total to KES (e.g., 1 USD = 130 KES)
+    // Adjust '130' to the current exchange rate
+    const amountInKes = Math.round(Number(total) * 130); 
+
+    await payWithPayHero(normalized, amountInKes, 'FM-ORDER-' + Date.now());
+    
+    toast.success('M-PESA prompt sent! Please enter your PIN.');
+  } catch (err: any) {
+    toast.error(err?.message || 'M-PESA payment failed');
+  } finally {
+    setIsProcessing(false);
+  }
+}, [phone, cart, total]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-950 via-indigo-900 to-slate-900 text-gray-100">
