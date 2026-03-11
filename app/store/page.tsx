@@ -127,11 +127,16 @@ export default function StorePage() {
     toast.success(`${item.name} added to cart`);
   };
 
-  const removeFromCart = (index: number) => {
-    setCart((prev) => prev.filter((_, i) => i !== index));
-  };
+  const [mounted, setMounted] = useState(false);
 
-  const total = Number(cart.reduce((sum, item) => sum + Number(item.price || 0), 0)).toFixed(2);
+useEffect(() => {
+  setMounted(true);
+  // ... your existing localStorage logic
+}, []);
+
+const total = mounted 
+  ? Number(cart.reduce((sum, item) => sum + Number(item.price || 0), 0)).toFixed(2)
+  : "0.00";
 
   const handleStripe = useCallback(async () => {
     if (cart.length === 0) {
