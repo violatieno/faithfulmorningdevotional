@@ -1,16 +1,14 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Ensure we are NOT using "export" for Stripe/M-Pesa to work
   images: {
     unoptimized: true,
   },
-  // If your build is failing due to small Type errors in the new payment code:
   typescript: {
-    ignoreBuildErrors: true, 
+    ignoreBuildErrors: true, // Forces build to finish
   },
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: true, // Ignores linting rules
   },
 };
 
