@@ -90,6 +90,7 @@ export default function StorePage() {
   ];
 
   // Handle Hydration and Load Cart
+  // 2. Combined useEffect to handle mounting and cart loading
   useEffect(() => {
     setMounted(true);
     try {
