@@ -127,6 +127,7 @@ export default function StorePage() {
     ? Number(cart.reduce((sum, item) => sum + Number(item.price || 0), 0)).toFixed(2)
     : "0.00";
     
+    
   const handleStripe = useCallback(async () => {
     if (cart.length === 0) {
       toast.error('Your cart is empty');
