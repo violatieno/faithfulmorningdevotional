@@ -78,6 +78,9 @@ export default function StorePage() {
   const [cart, setCart] = useState<Product[]>([]);
   const [phone, setPhone] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  
+  // CRITICAL: This prevents hydration mismatch by ensuring 
+  // browser-only data (like localStorage) doesn't render on the server.
   const [mounted, setMounted] = useState(false);
 
   const categories = [
@@ -89,20 +92,20 @@ export default function StorePage() {
     { id: 'mugs', name: 'Mugs', icon: 'ri-cup-line' },
   ];
 
-  // Handle Hydration and Load Cart
-  // 2. Combined useEffect to handle mounting and cart loading
+  // 1. Initialize mounting and load cart data ONLY on client
   useEffect(() => {
     setMounted(true);
     try {
       const stored = localStorage.getItem('faithfulCart');
-      if (stored) setCart(JSON.parse(stored));
+      if (stored) {
+        setCart(JSON.parse(stored));
+      }
     } catch (e) {
       console.error('Failed to load cart', e);
     }
   }, []);
 
-
-  // Save Cart on Changes
+  // 2. Persist cart changes to localStorage
   useEffect(() => {
     if (mounted) {
       localStorage.setItem('faithfulCart', JSON.stringify(cart));
@@ -123,12 +126,11 @@ export default function StorePage() {
     setCart((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // Safe Total Calculation
+  // 3. Calculation remains consistent (0.00) until the browser takes over
   const total = mounted 
     ? Number(cart.reduce((sum, item) => sum + Number(item.price || 0), 0)).toFixed(2)
     : "0.00";
-    
-    
+
   const handleStripe = useCallback(async () => {
     if (cart.length === 0) {
       toast.error('Your cart is empty');
@@ -168,7 +170,6 @@ export default function StorePage() {
     }
   }, [phone, cart, total]);
 
-  // Prevent rendering UI that depends on total/cart until mounted to avoid hydration flickers
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-950 via-indigo-900 to-slate-900 text-gray-100">
       <Header />
@@ -246,6 +247,10 @@ export default function StorePage() {
             ))}
           </div>
 
+          {/* CRITICAL: Wrapped the cart in the mounted check. 
+            This ensures the "Total" shown matches what the server rendered (nothing) 
+            until the client is ready.
+          */}
           {mounted && cart.length > 0 && (
             <div className="fixed bottom-8 right-8 bg-indigo-950/90 backdrop-blur-md rounded-2xl p-6 shadow-2xl max-w-sm text-indigo-100 z-50 border border-indigo-800">
               <div className="flex items-center justify-between mb-4">
