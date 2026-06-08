@@ -7,9 +7,6 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true, // Forces build to finish
   },
-  eslint: {
-    ignoreDuringBuilds: true, // Ignores linting rules
-  },
 };
 
 export default nextConfig;

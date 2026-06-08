@@ -1,9 +1,13 @@
+@import url('https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.5.0/remixicon.min.css');
+
+/* The rest of your Tailwind CSS / global styles follow below... */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* External fonts and icons */
-@import url('https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.5.0/remixicon.min.css');
 /* Fonts from next/font variables */
 :root {
   --font-pacifico: 'Pacifico', cursive;
