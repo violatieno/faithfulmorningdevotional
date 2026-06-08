@@ -3,8 +3,10 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
 const STRIPE_API_VERSION = "2022-11-15";
+// 2. Shield the initialization from empty build environment variables
 const stripe = new Stripe((process.env.STRIPE_SECRET_KEY || "sk_dummy_key_for_build") as string, {
-  apiVersion: "2024-06-20", 
+  apiVersion: "2024-06-20", // or whatever your version string is
+});
 });const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || "";
 
 export async function POST(req: Request) {
