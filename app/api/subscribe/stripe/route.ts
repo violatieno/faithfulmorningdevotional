@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-  apiVersion: "2024-06-20", // use the latest stable version
+// 1. Tell Next.js explicitly to skip static generation for this route
+export const dynamic = 'force-dynamic';
+
+// 2. Initialize Stripe safely with a fallback string so it never crashes compilation
+const stripe = new Stripe((process.env.STRIPE_SECRET_KEY || "sk_dummy_key_for_build") as string, {
+  apiVersion: "2024-06-20", 
 });
 
 export async function POST(req: Request) {
@@ -29,8 +33,8 @@ export async function POST(req: Request) {
           quantity: 1,
         },
       ],
-      success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/success`,
-      cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/subscribe`,
+      success_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/success`,
+      cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/subscribe`,
     });
 
     return NextResponse.json({ sessionId: session.id });
