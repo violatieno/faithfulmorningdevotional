@@ -1,9 +1,11 @@
+export const dynamic = 'force-dynamic';
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
 const STRIPE_API_VERSION = "2022-11-15";
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", { apiVersion: STRIPE_API_VERSION });
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || "";
+const stripe = new Stripe((process.env.STRIPE_SECRET_KEY || "sk_dummy_key_for_build") as string, {
+  apiVersion: "2024-06-20", 
+});const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || "";
 
 export async function POST(req: Request) {
   const sig = req.headers.get("stripe-signature") || "";
