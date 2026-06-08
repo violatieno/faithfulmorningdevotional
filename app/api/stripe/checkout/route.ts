@@ -1,46 +1,34 @@
-export const dynamic = 'force-dynamic';
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
+// 1. Absolute top-level instruction to Next.js
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
-const STRIPE_API_VERSION = "2022-11-15";
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", { apiVersion: STRIPE_API_VERSION });
+// 2. Safe instantiation with a dummy fallback
+const stripe = new Stripe((process.env.STRIPE_SECRET_KEY || "sk_dummy_key_for_build") as string, {
+  apiVersion: "2024-06-20",
+});
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const items = Array.isArray(body?.items) ? body.items : [];
-    if (items.length === 0) return NextResponse.json({ error: "No items provided" }, { status: 400 });
+    const { priceId } = await req.json();
 
-    const line_items = items.map((it: any) => ({
-      price_data: {
-        currency: String(it.currency || "usd"),
-        product_data: { name: String(it.name || "Product") },
-        unit_amount: Math.round((Number(it.price) || 0) * 100),
-      },
-      quantity: Math.max(1, parseInt(String(it.quantity || 1), 10)),
-    }));
-
-    const base =
-      process.env.NEXT_PUBLIC_BASE_URL ||
-      (process.env.NEXT_PUBLIC_VERCEL_URL ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}` : process.env.BASE_URL || "http://localhost:3000");
-
-    const success = process.env.STRIPE_SUCCESS_URL || `${base}/store/success`;
-    const cancel = process.env.STRIPE_CANCEL_URL || `${base}/store/cancel`;
+    if (!priceId) {
+      return NextResponse.json({ error: "Missing priceId" }, { status: 400 });
+    }
 
     const session = await stripe.checkout.sessions.create({
+      mode: "subscription",
       payment_method_types: ["card"],
-      mode: "payment",
-      line_items,
-      success_url: success,
-      cancel_url: cancel,
-      metadata: body.metadata || {},
+      line_items: [{ price: priceId, quantity: 1 }],
+      success_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/success`,
+      cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/cancel`,
     });
 
-    if (!session.url) return NextResponse.json({ error: "No session URL returned" }, { status: 500 });
-    return NextResponse.json({ url: session.url });
+    return NextResponse.json({ id: session.id });
   } catch (err: any) {
-    console.error("Stripe checkout error:", err);
-    return NextResponse.json({ error: err?.message || "Stripe error" }, { status: 500 });
+    console.error("Stripe Checkout Error:", err);
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
