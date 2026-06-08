@@ -1,5 +1,7 @@
+export const dynamic = 'force-dynamic';
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
+
 
 const STRIPE_API_VERSION = "2022-11-15";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", { apiVersion: STRIPE_API_VERSION });
