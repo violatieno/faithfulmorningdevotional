@@ -32,8 +32,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Faithful Morning Devotional",
   description: "Created by WebMasters Nakuru",
+  verification: {
+    google: "gU9vc2EnIBKB7kvw3GBUDiFT7dqDN6979NsgQv0AqwY", 
+  },
 };
-
 export default function RootLayout({
   children,
 }: {
